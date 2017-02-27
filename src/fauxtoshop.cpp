@@ -11,7 +11,7 @@ using namespace std;
 
 
 //function prototype
-void makeBlur(GWindow &gw , GBufferedImage &img , string imageName, int blurLeve);
+void makeBlur(GWindow &gw , GBufferedImage &img , int blurLeve);
 static bool     openImageFromFilename(GBufferedImage &img, string filename);
 static bool 	saveImageToFilename(const GBufferedImage &img, string filename);
 void MakeBlurGridImage(GBufferedImage &img, int blurLevel);
@@ -20,7 +20,7 @@ int blurHex(int rows, int cols, int blurLevel);
 
 //global variable
 Grid<int > blurredImgGrid;
-//int blurLevel;
+
 
 
 //main function
@@ -32,19 +32,45 @@ int main(){
 
 
 
-    cout << "Welcome to my PhotoEditor.please,choose file which u want to blur." << endl;
+    cout << "Wellcome to FAUXTOSHOP" << endl;
+
+    cout << "Enter the name of the image file to open (or blank to quit): ";
+
     string imageName = getLine();
-    cout << "please enter the blur level from 1 to 15" << endl;
-    int blurLevel = getInteger();
-    makeBlur(gw,img,imageName , blurLevel);
+
+
+
+    bool imageOpened = openImageFromFilename(img, imageName);
+
+    if(imageOpened){
+         cout << "which image filter would you like to apply?" << endl;
+         cout << "\t\t 1 - Blur" << endl;
+
+           cout << "Your choice: ";
+         while(true){
+             int filterChoose = getInteger();
+             if(filterChoose == 1){
+                 cout << "please enter the blur level from 1 to 15:";
+                 int blurLevel = getInteger();
+                 makeBlur(gw , img , blurLevel);
+                 break;
+             }else{
+                 cout << "Invalid selection. try again" << endl;
+                 cout << "Your choice: ";
+                 continue;
+             }
+         }
+    }
+
+    //
 
     return 0;
 }
 
 //a function where other functions are called
-void makeBlur(GWindow &gw , GBufferedImage &img , string imageName , int blurLeve){
+void makeBlur(GWindow &gw , GBufferedImage &img , int blurLeve){
 
-    openImageFromFilename(img, imageName);
+
 
     gw.setSize(img.getWidth(),img.getHeight());
 
@@ -54,7 +80,7 @@ void makeBlur(GWindow &gw , GBufferedImage &img , string imageName , int blurLev
 
     gw.add(&img);
 
-    cout << "Enter the saved file name:" << endl;
+    cout << "Enter the saved file name (or skip to exit) :";
     saveImageToFilename(img,getLine());
 
 }
@@ -102,20 +128,31 @@ void MakeBlurGridImage(GBufferedImage &img ,int blurLevel){
  * opened and the 'img' object now contains that image, otherwise it
  * returns false.
  */
-static bool openImageFromFilename(GBufferedImage &img, string filename) {
-    if(filename.length() == 0){
-        cout << "Exit" << endl;
-        return false;
-    }
-    while(true){
-    try { img.load(filename); }
-    catch (...) {
-        cout << "file not found.please,enter the valid file name or just hit enter to exit:"<< endl;
-        openImageFromFilename(img, getLine());
-        return false; }
-    return true;
-}
-}
+ static bool openImageFromFilename(GBufferedImage &img, string filename) {
+
+     if(filename.length() == 0) {
+         cout << "Exit" << endl;
+         return false;
+     }
+
+     try {
+         img.load(filename);
+     }
+     catch (exception e) {
+         cout << filename << " didn't found. Please provide a valid image name." << endl;
+
+         cout << "Image file name: " ;
+
+         string newImageName = getLine();
+
+         openImageFromFilename(img , newImageName);
+
+         return false;
+     }
+     return true;
+ }
+
+
 
 /*
  *
@@ -126,7 +163,7 @@ static bool openImageFromFilename(GBufferedImage &img, string filename) {
 static bool saveImageToFilename(const GBufferedImage &img, string filename) {
 
     if(filename.length() == 0){
-
+        cout << "Application exited." << endl;
         return false;
     }
     try {
